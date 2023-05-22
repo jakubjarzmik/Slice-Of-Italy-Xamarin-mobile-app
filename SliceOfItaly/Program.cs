@@ -1,4 +1,9 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using SliceOfItaly.Data;
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<SliceOfItalyContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("SliceOfItalyContext") ?? throw new InvalidOperationException("Connection string 'SliceOfItalyContext' not found.")));
 
 // Add services to the container.
 

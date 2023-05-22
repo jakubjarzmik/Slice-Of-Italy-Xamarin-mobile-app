@@ -9,7 +9,7 @@ namespace SliceOfItaly.Models
         [Required(ErrorMessage = "Price is required")]
         public decimal Price { get; set; }
         public int CategoryId { get; set; }
-        [Required(ErrorMessage = "Price is required")]
+        [Required(ErrorMessage = "Category is required")]
         [ForeignKey("CategoryId")]
         public virtual Category Category { get; set; } = default!;
         public virtual ICollection<OrderDish> OrderDishes { get; set; } = default!;
