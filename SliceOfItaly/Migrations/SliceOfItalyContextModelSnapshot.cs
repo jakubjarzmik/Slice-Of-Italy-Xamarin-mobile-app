@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using SliceOfItaly.Data;
+using SliceOfItalyAPI.Data;
 
 #nullable disable
 
-namespace SliceOfItaly.Migrations
+namespace SliceOfItalyAPI.Migrations
 {
     [DbContext(typeof(SliceOfItalyContext))]
     partial class SliceOfItalyContextModelSnapshot : ModelSnapshot

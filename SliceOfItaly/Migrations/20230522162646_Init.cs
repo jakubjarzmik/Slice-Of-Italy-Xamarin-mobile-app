@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace SliceOfItaly.Migrations
+namespace SliceOfItalyAPI.Migrations
 {
     public partial class Init : Migration
     {

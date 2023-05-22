@@ -1,6 +1,6 @@
-﻿using SliceOfItaly.Models.Abstract;
+﻿using SliceOfItalyAPI.Models.Abstract;
 
-namespace SliceOfItaly.Models
+namespace SliceOfItalyAPI.Models
 {
     public class Category : DictionaryTable
     {

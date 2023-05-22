@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SliceOfItaly.Data;
-using SliceOfItaly.Models;
+using SliceOfItalyAPI.Data;
+using SliceOfItalyAPI.Models;
 
-namespace SliceOfItaly.Controllers
+namespace SliceOfItalyAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -88,7 +88,7 @@ namespace SliceOfItaly.Controllers
             _context.Category.Add(category);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetCategory", new { id = category.Id }, category);
+            return Ok(category);
         }
 
         // DELETE: api/Categories/5

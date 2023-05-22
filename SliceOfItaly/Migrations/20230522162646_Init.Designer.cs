@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using SliceOfItaly.Data;
+using SliceOfItalyAPI.Data;
 
 #nullable disable
 
-namespace SliceOfItaly.Migrations
+namespace SliceOfItalyAPI.Migrations
 {
     [DbContext(typeof(SliceOfItalyContext))]
     [Migration("20230522162646_Init")]

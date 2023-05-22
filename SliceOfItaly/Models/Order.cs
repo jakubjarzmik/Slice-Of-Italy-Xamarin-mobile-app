@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using SliceOfItaly.Models.Abstract;
+using SliceOfItalyAPI.Models.Abstract;
 
-namespace SliceOfItaly.Models
+namespace SliceOfItalyAPI.Models
 {
     public class Order : BaseDataTable
     {

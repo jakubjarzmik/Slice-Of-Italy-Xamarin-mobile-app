@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using SliceOfItaly.Data;
+using SliceOfItalyAPI.Data;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<SliceOfItalyContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("SliceOfItalyContext") ?? throw new InvalidOperationException("Connection string 'SliceOfItalyContext' not found.")));

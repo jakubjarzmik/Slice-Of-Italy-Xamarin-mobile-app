@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SliceOfItaly.Models.Abstract
+namespace SliceOfItalyAPI.Models.Abstract
 {
     public class BaseDataTable
     {
