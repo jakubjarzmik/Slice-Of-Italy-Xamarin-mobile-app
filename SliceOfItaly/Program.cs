@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using SliceOfItaly.Data;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<SliceOfItalyContext>(options =>

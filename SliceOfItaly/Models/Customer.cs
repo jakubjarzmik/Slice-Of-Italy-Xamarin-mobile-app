@@ -14,9 +14,7 @@ namespace SliceOfItaly.Models
         public string Email { get; set; } = default!;
         [Required(ErrorMessage = "Phone is required")]
         public string Phone { get; set; } = default!;
-        public int AddressId { get; set; }
-        [ForeignKey("AddressId")] 
-        public virtual Address Address { get; set; } = default!;
+        public virtual ICollection<Address> Addresses { get; set; } = default!;
         public virtual ICollection<Order>? Orders { get; set; }
     }
 }
