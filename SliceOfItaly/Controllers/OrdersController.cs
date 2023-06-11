@@ -3,117 +3,116 @@ using Microsoft.EntityFrameworkCore;
 using SliceOfItalyAPI.Data;
 using SliceOfItalyAPI.Models;
 
-namespace SliceOfItalyAPI.Controllers
+namespace SliceOfItalyAPI.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+public class OrdersController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class OrdersController : ControllerBase
+    private readonly SliceOfItalyContext _context;
+
+    public OrdersController(SliceOfItalyContext context)
     {
-        private readonly SliceOfItalyContext _context;
+        _context = context;
+    }
 
-        public OrdersController(SliceOfItalyContext context)
+    // GET: api/Orders
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<Order>>> GetOrder()
+    {
+        if (_context.Order == null)
         {
-            _context = context;
+            return NotFound();
+        }
+        return await _context.Order.ToListAsync();
+    }
+
+    // GET: api/Orders/5
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Order>> GetOrder(int id)
+    {
+        if (_context.Order == null)
+        {
+            return NotFound();
+        }
+        var order = await _context.Order.FindAsync(id);
+
+        if (order == null)
+        {
+            return NotFound();
         }
 
-        // GET: api/Orders
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Order>>> GetOrder()
+        return order;
+    }
+
+    // PUT: api/Orders/5
+    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+    [HttpPut("{id}")]
+    public async Task<IActionResult> PutOrder(int id, Order order)
+    {
+        if (id != order.Id)
         {
-          if (_context.Order == null)
-          {
-              return NotFound();
-          }
-            return await _context.Order.ToListAsync();
+            return BadRequest();
         }
 
-        // GET: api/Orders/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Order>> GetOrder(int id)
+        _context.Entry(order).State = EntityState.Modified;
+
+        try
         {
-          if (_context.Order == null)
-          {
-              return NotFound();
-          }
-            var order = await _context.Order.FindAsync(id);
-
-            if (order == null)
-            {
-                return NotFound();
-            }
-
-            return order;
-        }
-
-        // PUT: api/Orders/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutOrder(int id, Order order)
-        {
-            if (id != order.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(order).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!OrderExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Orders
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Order>> PostOrder(Order order)
-        {
-          if (_context.Order == null)
-          {
-              return Problem("Entity set 'SliceOfItalyContext.Order'  is null.");
-          }
-            _context.Order.Add(order);
             await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetOrder", new { id = order.Id }, order);
         }
-
-        // DELETE: api/Orders/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteOrder(int id)
+        catch (DbUpdateConcurrencyException)
         {
-            if (_context.Order == null)
+            if (!OrderExists(id))
             {
                 return NotFound();
             }
-            var order = await _context.Order.FindAsync(id);
-            if (order == null)
+            else
             {
-                return NotFound();
+                throw;
             }
-
-            _context.Order.Remove(order);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
         }
 
-        private bool OrderExists(int id)
+        return NoContent();
+    }
+
+    // POST: api/Orders
+    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+    [HttpPost]
+    public async Task<ActionResult<Order>> PostOrder(Order order)
+    {
+        if (_context.Order == null)
         {
-            return (_context.Order?.Any(e => e.Id == id)).GetValueOrDefault();
+            return Problem("Entity set 'SliceOfItalyContext.Order'  is null.");
         }
+        _context.Order.Add(order);
+        await _context.SaveChangesAsync();
+
+        return CreatedAtAction("GetOrder", new { id = order.Id }, order);
+    }
+
+    // DELETE: api/Orders/5
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteOrder(int id)
+    {
+        if (_context.Order == null)
+        {
+            return NotFound();
+        }
+        var order = await _context.Order.FindAsync(id);
+        if (order == null)
+        {
+            return NotFound();
+        }
+
+        _context.Order.Remove(order);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    private bool OrderExists(int id)
+    {
+        return (_context.Order?.Any(e => e.Id == id)).GetValueOrDefault();
     }
 }

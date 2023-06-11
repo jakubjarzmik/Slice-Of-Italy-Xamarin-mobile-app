@@ -1,9 +1,8 @@
 ﻿using SliceOfItalyAPI.Models.Abstract;
 
-namespace SliceOfItalyAPI.Models
+namespace SliceOfItalyAPI.Models;
+
+public class Category : DictionaryTable
 {
-    public class Category : DictionaryTable
-    {
-        public List<Dish>? Dishes { get; set; }
-    }
+    public List<Dish>? Dishes { get; set; }
 }

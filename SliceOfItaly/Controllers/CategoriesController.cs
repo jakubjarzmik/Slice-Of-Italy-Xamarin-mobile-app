@@ -3,117 +3,116 @@ using Microsoft.EntityFrameworkCore;
 using SliceOfItalyAPI.Data;
 using SliceOfItalyAPI.Models;
 
-namespace SliceOfItalyAPI.Controllers
+namespace SliceOfItalyAPI.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+public class CategoriesController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class CategoriesController : ControllerBase
+    private readonly SliceOfItalyContext _context;
+
+    public CategoriesController(SliceOfItalyContext context)
     {
-        private readonly SliceOfItalyContext _context;
+        _context = context;
+    }
 
-        public CategoriesController(SliceOfItalyContext context)
+    // GET: api/Categories
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<Category>>> GetCategory()
+    {
+        if (_context.Category == null)
         {
-            _context = context;
+            return NotFound();
+        }
+        return await _context.Category.ToListAsync();
+    }
+
+    // GET: api/Categories/5
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Category>> GetCategory(int id)
+    {
+        if (_context.Category == null)
+        {
+            return NotFound();
+        }
+        var category = await _context.Category.FindAsync(id);
+
+        if (category == null)
+        {
+            return NotFound();
         }
 
-        // GET: api/Categories
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Category>>> GetCategory()
+        return category;
+    }
+
+    // PUT: api/Categories/5
+    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+    [HttpPut("{id}")]
+    public async Task<IActionResult> PutCategory(int id, Category category)
+    {
+        if (id != category.Id)
         {
-          if (_context.Category == null)
-          {
-              return NotFound();
-          }
-            return await _context.Category.ToListAsync();
+            return BadRequest();
         }
 
-        // GET: api/Categories/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Category>> GetCategory(int id)
+        _context.Entry(category).State = EntityState.Modified;
+
+        try
         {
-          if (_context.Category == null)
-          {
-              return NotFound();
-          }
-            var category = await _context.Category.FindAsync(id);
-
-            if (category == null)
-            {
-                return NotFound();
-            }
-
-            return category;
-        }
-
-        // PUT: api/Categories/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutCategory(int id, Category category)
-        {
-            if (id != category.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(category).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CategoryExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Categories
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Category>> PostCategory(Category category)
-        {
-          if (_context.Category == null)
-          {
-              return Problem("Entity set 'SliceOfItalyContext.Category'  is null.");
-          }
-            _context.Category.Add(category);
             await _context.SaveChangesAsync();
-
-            return Ok(category);
         }
-
-        // DELETE: api/Categories/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCategory(int id)
+        catch (DbUpdateConcurrencyException)
         {
-            if (_context.Category == null)
+            if (!CategoryExists(id))
             {
                 return NotFound();
             }
-            var category = await _context.Category.FindAsync(id);
-            if (category == null)
+            else
             {
-                return NotFound();
+                throw;
             }
-
-            _context.Category.Remove(category);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
         }
 
-        private bool CategoryExists(int id)
+        return NoContent();
+    }
+
+    // POST: api/Categories
+    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+    [HttpPost]
+    public async Task<ActionResult<Category>> PostCategory(Category category)
+    {
+        if (_context.Category == null)
         {
-            return (_context.Category?.Any(e => e.Id == id)).GetValueOrDefault();
+            return Problem("Entity set 'SliceOfItalyContext.Category'  is null.");
         }
+        _context.Category.Add(category);
+        await _context.SaveChangesAsync();
+
+        return Ok(category);
+    }
+
+    // DELETE: api/Categories/5
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteCategory(int id)
+    {
+        if (_context.Category == null)
+        {
+            return NotFound();
+        }
+        var category = await _context.Category.FindAsync(id);
+        if (category == null)
+        {
+            return NotFound();
+        }
+
+        _context.Category.Remove(category);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    private bool CategoryExists(int id)
+    {
+        return (_context.Category?.Any(e => e.Id == id)).GetValueOrDefault();
     }
 }
