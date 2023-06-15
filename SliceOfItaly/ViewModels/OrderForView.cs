@@ -1,7 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using SliceOfItalyAPI.Models.Abstract;
+﻿using SliceOfItalyAPI.Models.Abstract;
 using SliceOfItalyAPI.Models;
-using System.ComponentModel.DataAnnotations.Schema;
 using SliceOfItalyAPI.Helpers;
 
 namespace SliceOfItalyAPI.ViewModels

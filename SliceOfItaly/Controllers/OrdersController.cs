@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SliceOfItalyAPI.Controllers.Abstract;
 using SliceOfItalyAPI.Data;
 using SliceOfItalyAPI.Helpers;
 using SliceOfItalyAPI.Models;
@@ -21,7 +20,7 @@ public class OrdersController : ControllerBase
 
     // GET: api/Order
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<OrderForView>>> Get()
+    public async Task<ActionResult<IEnumerable<OrderForView>>> GetOrders()
     {
         if (_context.Order == null)
         {
@@ -30,6 +29,9 @@ public class OrdersController : ControllerBase
         try
         {
             var order = await _context.Order
+                    .Include(ord => ord.Customer)
+                    .Include(ord => ord.OrderDishes)
+                    .ThenInclude(ord => ord.Dish)
                     .ToListAsync();
             return order
                     .Select(ord => OrderForView.ConvertWithDishes(ord))
@@ -44,13 +46,16 @@ public class OrdersController : ControllerBase
 
     // GET: api/Order/5
     [HttpGet("{id}")]
-    public async Task<ActionResult<OrderForView>> Get(int id)
+    public async Task<ActionResult<OrderForView>> GetOrder(int id)
     {
         if (_context.Order == null)
         {
             return NotFound();
         }
         var order = await _context.Order
+                            .Include(ord => ord.Customer)
+                            .Include(ord => ord.OrderDishes)
+                            .ThenInclude(ord => ord.Dish)
                             .FirstAsync(ord => ord.Id == id);
 
         if (order == null)
@@ -65,7 +70,7 @@ public class OrdersController : ControllerBase
     // PUT: api/Order/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
-    public async Task<IActionResult> Put(int id, OrderForView order)
+    public async Task<IActionResult> PutOrder(int id, OrderForView order)
     {
         if (id != order.Id)
         {
@@ -101,7 +106,7 @@ public class OrdersController : ControllerBase
     // POST: api/Order
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
-    public async Task<ActionResult<OrderForView>> Post(OrderForView order)
+    public async Task<ActionResult<OrderForView>> PostOrder(OrderForView order)
     {
         if (_context.Order == null)
         {
@@ -111,6 +116,7 @@ public class OrdersController : ControllerBase
         await _context.SaveChangesAsync();
 
         var res = await _context.Order
+            .Include(ord => ord.Customer)
             .FirstOrDefaultAsync(ord => ord.Id == order.Id);
         try
         {
@@ -126,7 +132,7 @@ public class OrdersController : ControllerBase
 
     // DELETE: api/Order/5
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> DeleteOrder(int id)
     {
         if (_context.Order == null)
         {
