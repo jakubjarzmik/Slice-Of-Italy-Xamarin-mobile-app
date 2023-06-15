@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using SliceOfItalyAPI.Data;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<SliceOfItalyContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SliceOfItalyContext") ?? throw new InvalidOperationException("Connection string 'SliceOfItalyContext' not found.")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("SliceOfItalyContext") ?? throw new InvalidOperationException("Connection string 'SliceOfItalyContext' not found.")).UseLazyLoadingProxies());
 
 // Add services to the container.
 
