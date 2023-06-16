@@ -99,6 +99,6 @@ public class AddressesController : ControllerBase
 
     private bool AddressExists(int id)
     {
-        return _context.Address.Any(e => e.Id == id);
+        return (_context.Address?.Any(e => e.Id == id)).GetValueOrDefault();
     }
 }

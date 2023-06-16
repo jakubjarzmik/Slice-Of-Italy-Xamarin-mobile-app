@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using SliceOfItalyAPI.Data;
 using SliceOfItalyAPI.Models;
+using SliceOfItalyAPI.Models.BusinessLogic;
+using SliceOfItalyAPI.ViewModels;
 
 namespace SliceOfItalyAPI.Controllers;
 
@@ -18,34 +20,40 @@ public class OrderDishesController : ControllerBase
 
     // GET: api/OrderDishes
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<OrderDish>>> GetOrderDishes()
+    public async Task<ActionResult<IEnumerable<OrderDishForView>>> GetOrderDishes()
     {
-        return await _context.OrderDish
-            .Include(od => od.Order)
-            .Include(od => od.Dish)
-            .ToListAsync();
+        if (_context.OrderDish == null)
+        {
+            return NotFound();
+        }
+        return (await _context.OrderDish
+            .ToListAsync())
+            .Select(od => (OrderDishForView)od)
+            .ToList();
     }
 
     // GET: api/OrderDishes/5
     [HttpGet("{id}")]
-    public async Task<ActionResult<OrderDish>> GetOrderDish(int id)
+    public async Task<ActionResult<OrderDishForView>> GetOrderDish(int id)
     {
+        if (_context.OrderDish == null)
+        {
+            return NotFound();
+        }
         var orderDish = await _context.OrderDish
-            .Include(od => od.Order)
-            .Include(od => od.Dish)
-            .FirstOrDefaultAsync(od => od.Id == id);
+            .FindAsync(id);
 
         if (orderDish == null)
         {
             return NotFound();
         }
 
-        return orderDish;
+        return Ok(orderDish);
     }
 
     // PUT: api/OrderDishes/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutOrderDish(int id, OrderDish orderDish)
+    public async Task<IActionResult> PutOrderDish(int id, OrderDishForView orderDish)
     {
         if (id != orderDish.Id)
         {
@@ -75,17 +83,33 @@ public class OrderDishesController : ControllerBase
 
     // POST: api/OrderDishes
     [HttpPost]
-    public async Task<ActionResult<OrderDish>> PostOrderDish(OrderDish orderDish)
+    public async Task<ActionResult<OrderDishForView>> PostOrderDish(OrderDishForView orderDish)
     {
-        _context.OrderDish?.Add(orderDish);
+        try
+        {
+            if (_context.OrderDish == null)
+            {
+                throw new Exception("Entity set 'SliceOfItalyContext.OrderDish' is null.");
+            }
+            await OrderDishB.ValidateAndFillOrderDish(orderDish, _context);
+        }
+        catch (Exception e)
+        {
+            return Problem(e.Message);
+        }
+
+        _context.OrderDish?.Add((OrderDish)orderDish);
         await _context.SaveChangesAsync();
+
+        await OrderDishB.UpdateTotalPrice(orderDish, _context);
 
         return Ok(orderDish);
     }
 
+
     // DELETE: api/OrderDishes/5
     [HttpDelete("{id}")]
-    public async Task<ActionResult<OrderDish>> DeleteOrderDish(int id)
+    public async Task<ActionResult<OrderDishForView>> DeleteOrderDish(int id)
     {
         var orderDish = await _context.OrderDish.FindAsync(id);
         if (orderDish == null)
@@ -96,11 +120,11 @@ public class OrderDishesController : ControllerBase
         _context.OrderDish.Remove(orderDish);
         await _context.SaveChangesAsync();
 
-        return orderDish;
+        return Ok(orderDish);
     }
 
     private bool OrderDishExists(int id)
     {
-        return _context.OrderDish.Any(e => e.Id == id);
+        return (_context.OrderDish?.Any(e => e.Id == id)).GetValueOrDefault();
     }
 }

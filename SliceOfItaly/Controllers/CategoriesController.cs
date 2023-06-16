@@ -97,6 +97,6 @@ public class CategoriesController : ControllerBase
 
     private bool CategoryExists(int id)
     {
-        return _context.Category.Any(e => e.Id == id);
+        return (_context.Category?.Any(e => e.Id == id)).GetValueOrDefault();
     }
 }

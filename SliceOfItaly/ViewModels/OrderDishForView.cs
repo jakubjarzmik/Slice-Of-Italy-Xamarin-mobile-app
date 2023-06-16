@@ -9,7 +9,7 @@ namespace SliceOfItalyAPI.ViewModels
         public int OrderId { get; set; }
 
         public int DishId { get; set; }
-        public string DishName { get; set; } = default!;
+        public string? DishName { get; set; }
         public static explicit operator OrderDish(OrderDishForView od)
         {
             var result = new OrderDish().CopyProperties(od);

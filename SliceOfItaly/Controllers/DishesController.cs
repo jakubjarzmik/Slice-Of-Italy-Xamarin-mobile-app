@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SliceOfItalyAPI.Data;
+using SliceOfItalyAPI.Helpers;
 using SliceOfItalyAPI.Models;
+using SliceOfItalyAPI.ViewModels;
 
 namespace SliceOfItalyAPI.Controllers;
 
@@ -18,17 +20,25 @@ public class DishesController : ControllerBase
 
     // GET: api/Dishes
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Dish>>> GetDishes()
+    public async Task<ActionResult<IEnumerable<DishForView>>> GetDishes()
     {
-        return await _context.Dish
+        if (_context.Dish == null)
+            return NotFound();
+
+        return (await _context.Dish
             .Include(d => d.Category)
-            .ToListAsync();
+            .ToListAsync()).
+            Select(d => (DishForView)d)
+            .ToList();
     }
 
     // GET: api/Dishes/5
     [HttpGet("{id}")]
-    public async Task<ActionResult<Dish>> GetDish(int id)
+    public async Task<ActionResult<DishForView>> GetDish(int id)
     {
+        if (_context.Dish == null)
+            return NotFound();
+
         var dish = await _context.Dish
             .Include(d => d.Category)
             .FirstOrDefaultAsync(d => d.Id == id);
@@ -38,17 +48,26 @@ public class DishesController : ControllerBase
             return NotFound();
         }
 
-        return dish;
+        return Ok((DishForView)dish);
     }
 
     // PUT: api/Dishes/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutDish(int id, Dish dish)
+    public async Task<IActionResult> PutDish(int id, DishForView dish)
     {
-        if (id != dish.Id)
+        if (id != dish.Id || _context.Dish == null)
         {
             return BadRequest();
         }
+
+        var d = await _context.Dish.FindAsync(id);
+
+        if (d == null)
+        {
+            return BadRequest();
+        }
+
+        d.CopyProperties(dish);
 
         _context.Entry(dish).State = EntityState.Modified;
 
@@ -73,9 +92,13 @@ public class DishesController : ControllerBase
 
     // POST: api/Dishes
     [HttpPost]
-    public async Task<ActionResult<Dish>> PostDish(Dish dish)
+    public async Task<ActionResult<DishForView>> PostDish(DishForView dish)
     {
-        _context.Dish?.Add(dish);
+        if (_context.Dish == null)
+        {
+            return Problem("Entity set 'SliceOfItalyContext.Dish' is null.");
+        }
+        _context.Dish.Add((Dish)dish);
         await _context.SaveChangesAsync();
 
         return Ok(dish);
@@ -83,8 +106,12 @@ public class DishesController : ControllerBase
 
     // DELETE: api/Dishes/5
     [HttpDelete("{id}")]
-    public async Task<ActionResult<Dish>> DeleteDish(int id)
+    public async Task<ActionResult<DishForView>> DeleteDish(int id)
     {
+        if (_context.Dish == null)
+        {
+            return NotFound();
+        }
         var dish = await _context.Dish.FindAsync(id);
         if (dish == null)
         {
@@ -94,11 +121,11 @@ public class DishesController : ControllerBase
         _context.Dish.Remove(dish);
         await _context.SaveChangesAsync();
 
-        return dish;
+        return NoContent();
     }
 
     private bool DishExists(int id)
     {
-        return _context.Dish.Any(e => e.Id == id);
+        return (_context.Dish?.Any(e => e.Id == id)).GetValueOrDefault();
     }
 }

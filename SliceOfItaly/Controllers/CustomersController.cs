@@ -97,6 +97,6 @@ public class CustomersController : ControllerBase
 
     private bool CustomerExists(int id)
     {
-        return _context.Customer.Any(e => e.Id == id);
+        return (_context.Customer?.Any(e => e.Id == id)).GetValueOrDefault();
     }
 }

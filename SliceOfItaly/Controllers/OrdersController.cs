@@ -115,13 +115,12 @@ public class OrdersController : ControllerBase
         _context.Order.Add((Order)order);
         await _context.SaveChangesAsync();
 
-        var res = await _context.Order
-            .Include(ord => ord.Customer)
-            .FirstOrDefaultAsync(ord => ord.Id == order.Id);
+        //var res = await _context.Order
+        //    .Include(ord => ord.Customer)
+        //    .FirstOrDefaultAsync(ord => ord.Id == order.Id);
         try
         {
-
-            return Ok(res);
+            return Ok(order);
         }
         catch (Exception e)
         {

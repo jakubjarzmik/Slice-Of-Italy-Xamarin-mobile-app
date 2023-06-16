@@ -34,7 +34,7 @@ namespace SliceOfItalyAPI.ViewModels
             if (order.OrderDishes?.Any() == true)
             {
                 result.OrderDishes = order.OrderDishes
-                    .Select(acc => (OrderDishForView)acc)
+                    .Select(ord => (OrderDishForView)ord)
                     .ToList();
             }
 
