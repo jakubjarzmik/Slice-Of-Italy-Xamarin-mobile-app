@@ -27,9 +27,11 @@ public class OrderDishesController : ControllerBase
             return NotFound();
         }
         return (await _context.OrderDish
-            .ToListAsync())
-            .Select(od => (OrderDishForView)od)
-            .ToList();
+                .Where(od => od.IsActive)
+                .OrderByDescending(od => od.CreatedAt)
+                .ToListAsync())
+                .Select(od => (OrderDishForView)od)
+                .ToList();
     }
 
     // GET: api/OrderDishes/5
@@ -117,7 +119,9 @@ public class OrderDishesController : ControllerBase
             return NotFound();
         }
 
-        _context.OrderDish.Remove(orderDish);
+        orderDish.IsActive = false;
+        orderDish.DeletedAt = DateTime.Now;
+
         await _context.SaveChangesAsync();
 
         return Ok(orderDish);

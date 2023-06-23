@@ -29,6 +29,8 @@ public class OrdersController : ControllerBase
         try
         {
             var order = await _context.Order
+                    .Where(oc => oc.IsActive)
+                    .OrderByDescending(oc => oc.CreatedAt)
                     .Include(ord => ord.Customer)
                     .Include(ord => ord.OrderDishes)
                     .ThenInclude(ord => ord.Dish)
@@ -143,7 +145,9 @@ public class OrdersController : ControllerBase
             return NotFound();
         }
 
-        _context.Order.Remove(order);
+        order.IsActive = false;
+        order.DeletedAt = DateTime.Now;
+
         await _context.SaveChangesAsync();
 
         return NoContent();

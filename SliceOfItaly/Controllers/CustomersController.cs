@@ -20,7 +20,12 @@ public class CustomersController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Customer>>> GetCustomers()
     {
+        if (_context.Customer == null)
+            return NotFound();
+
         return await _context.Customer
+            .Where(c => c.IsActive)
+            .OrderByDescending(c => c.CreatedAt)
             .ToListAsync();
     }
 
@@ -28,6 +33,9 @@ public class CustomersController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<Customer>> GetCustomer(int id)
     {
+        if (_context.Customer == null)
+            return NotFound();
+
         var customer = await _context.Customer
             .FirstOrDefaultAsync(c => c.Id == id);
 
@@ -83,13 +91,18 @@ public class CustomersController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<ActionResult<Customer>> DeleteCustomer(int id)
     {
+        if (_context.Customer == null)
+            return NotFound();
+
         var customer = await _context.Customer.FindAsync(id);
         if (customer == null)
         {
             return NotFound();
         }
 
-        _context.Customer.Remove(customer);
+        customer.IsActive = false;
+        customer.DeletedAt = DateTime.Now;
+
         await _context.SaveChangesAsync();
 
         return customer;

@@ -2,43 +2,42 @@
 using SliceOfItalyAPI.Models;
 using SliceOfItalyAPI.Helpers;
 
-namespace SliceOfItalyAPI.ViewModels
+namespace SliceOfItalyAPI.ViewModels;
+
+public class OrderForView : BaseDataTable
 {
-    public class OrderForView : BaseDataTable
+    public int CustomerId { get; set; }
+    public string CustomerName { get; set; } = default!;
+    public decimal TotalPrice { get; set; }
+    public DateTime OrderDate { get; set; }
+    public virtual ICollection<OrderDishForView> OrderDishes { get; set; } = default!;
+
+    public static explicit operator Order(OrderForView order)
     {
-        public int CustomerId { get; set; }
-        public string CustomerName { get; set; } = default!;
-        public decimal TotalPrice { get; set; }
-        public DateTime OrderDate { get; set; }
-        public virtual ICollection<OrderDishForView> OrderDishes { get; set; } = default!;
+        var result = new Order().CopyProperties(order);
+        return result;
+    }
+    public static implicit operator OrderForView(Order order)
+    {
+        var result = new OrderForView
+        {
+            CustomerId = order.CustomerId,
+            CustomerName = order?.Customer?.Name ?? string.Empty,
+            TotalPrice = order?.TotalPrice ?? 0,
+            OrderDate = order?.OrderDate ?? DateTime.Now
+        }.CopyProperties(order);
+        return result;
+    }
+    public static OrderForView ConvertWithDishes(Order order)
+    {
+        var result = (OrderForView)order;
+        if (order.OrderDishes?.Any() == true)
+        {
+            result.OrderDishes = order.OrderDishes
+                .Select(ord => (OrderDishForView)ord)
+                .ToList();
+        }
 
-        public static explicit operator Order(OrderForView order)
-        {
-            var result = new Order().CopyProperties(order);
-            return result;
-        }
-        public static implicit operator OrderForView(Order order)
-        {
-            var result = new OrderForView
-            {
-                CustomerId = order.CustomerId,
-                CustomerName = order?.Customer?.Name ?? string.Empty,
-                TotalPrice = order?.TotalPrice ?? 0,
-                OrderDate = order?.OrderDate ?? DateTime.Now
-            }.CopyProperties(order);
-            return result;
-        }
-        public static OrderForView ConvertWithDishes(Order order)
-        {
-            var result = (OrderForView)order;
-            if (order.OrderDishes?.Any() == true)
-            {
-                result.OrderDishes = order.OrderDishes
-                    .Select(ord => (OrderDishForView)ord)
-                    .ToList();
-            }
-
-            return result;
-        }
+        return result;
     }
 }

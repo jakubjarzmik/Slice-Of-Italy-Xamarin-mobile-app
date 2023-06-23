@@ -26,10 +26,12 @@ public class DishesController : ControllerBase
             return NotFound();
 
         return (await _context.Dish
-            .Include(d => d.Category)
-            .ToListAsync()).
-            Select(d => (DishForView)d)
-            .ToList();
+                .Where(d => d.IsActive)
+                .OrderByDescending(d => d.CreatedAt)
+                .Include(d => d.Category)
+                .ToListAsync()).
+                Select(d => (DishForView)d)
+                .ToList();
     }
 
     // GET: api/Dishes/5
@@ -118,7 +120,9 @@ public class DishesController : ControllerBase
             return NotFound();
         }
 
-        _context.Dish.Remove(dish);
+        dish.IsActive = false;
+        dish.DeletedAt = DateTime.Now;
+
         await _context.SaveChangesAsync();
 
         return NoContent();

@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SliceOfItalyAPI.Data;
+using SliceOfItalyAPI.Helpers;
 using SliceOfItalyAPI.Models;
+using SliceOfItalyAPI.ViewModels;
 
 namespace SliceOfItalyAPI.Controllers;
 
@@ -18,19 +20,29 @@ public class AddressesController : ControllerBase
 
     // GET: api/Addresses
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Address>>> GetAddresses()
+    public async Task<ActionResult<IEnumerable<AddressForView>>> GetAddresses()
     {
-        return await _context.Address
-            .Include(a => a.Customer) // Include the Customer data
-            .ToListAsync();
+        if (_context.Address == null)
+            return NotFound();
+
+        return (await _context.Address
+                .Where(a => a.IsActive)
+                .OrderByDescending(a => a.CreatedAt)
+                .Include(a => a.Customer)
+                .ToListAsync()).
+                Select(a => (AddressForView)a)
+                .ToList();
     }
 
     // GET: api/Addresses/5
     [HttpGet("{id}")]
-    public async Task<ActionResult<Address>> GetAddress(int id)
+    public async Task<ActionResult<AddressForView>> GetAddress(int id)
     {
+        if (_context.Address == null)
+            return NotFound();
+
         var address = await _context.Address
-            .Include(a => a.Customer) // Include the Customer data
+            .Include(a => a.Customer)
             .FirstOrDefaultAsync(a => a.Id == id);
 
         if (address == null)
@@ -38,17 +50,26 @@ public class AddressesController : ControllerBase
             return NotFound();
         }
 
-        return address;
+        return Ok((AddressForView)address);
     }
 
     // PUT: api/Addresses/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutAddress(int id, Address address)
+    public async Task<IActionResult> PutAddress(int id, AddressForView address)
     {
-        if (id != address.Id)
+        if (id != address.Id || _context.Address == null)
         {
             return BadRequest();
         }
+
+        var a = await _context.Address.FindAsync(id);
+
+        if (a == null)
+        {
+            return BadRequest();
+        }
+
+        a.CopyProperties(address);
 
         _context.Entry(address).State = EntityState.Modified;
 
@@ -73,9 +94,13 @@ public class AddressesController : ControllerBase
 
     // POST: api/Addresses
     [HttpPost]
-    public async Task<ActionResult<Address>> PostAddress(Address address)
+    public async Task<ActionResult<AddressForView>> PostAddress(AddressForView address)
     {
-        _context.Address.Add(address);
+        if (_context.Address == null)
+        {
+            return Problem("Entity set 'SliceOfItalyContext.Address' is null.");
+        }
+        _context.Address.Add((Address)address);
         await _context.SaveChangesAsync();
 
         return Ok(address);
@@ -83,18 +108,24 @@ public class AddressesController : ControllerBase
 
     // DELETE: api/Addresses/5
     [HttpDelete("{id}")]
-    public async Task<ActionResult<Address>> DeleteAddress(int id)
+    public async Task<ActionResult<AddressForView>> DeleteAddress(int id)
     {
+        if (_context.Address == null)
+        {
+            return NotFound();
+        }
         var address = await _context.Address.FindAsync(id);
         if (address == null)
         {
             return NotFound();
         }
 
-        _context.Address.Remove(address);
+        address.IsActive = false;
+        address.DeletedAt = DateTime.Now;
+
         await _context.SaveChangesAsync();
 
-        return address;
+        return NoContent();
     }
 
     private bool AddressExists(int id)

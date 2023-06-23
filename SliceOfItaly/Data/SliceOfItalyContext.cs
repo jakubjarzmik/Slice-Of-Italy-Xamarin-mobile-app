@@ -5,7 +5,7 @@ namespace SliceOfItalyAPI.Data;
 
 public class SliceOfItalyContext : DbContext
 {
-    public SliceOfItalyContext (DbContextOptions<SliceOfItalyContext> options)
+    public SliceOfItalyContext(DbContextOptions<SliceOfItalyContext> options)
         : base(options)
     {
     }

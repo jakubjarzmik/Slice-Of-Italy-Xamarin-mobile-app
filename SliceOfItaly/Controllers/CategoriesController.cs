@@ -21,6 +21,8 @@ public class CategoriesController : ControllerBase
     public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
     {
         return await _context.Category
+            .Where(c => c.IsActive)
+            .OrderByDescending(c => c.CreatedAt)
             .ToListAsync();
     }
 
@@ -89,7 +91,9 @@ public class CategoriesController : ControllerBase
             return NotFound();
         }
 
-        _context.Category.Remove(category);
+        category.IsActive = false;
+        category.DeletedAt = DateTime.Now;
+
         await _context.SaveChangesAsync();
 
         return category;
